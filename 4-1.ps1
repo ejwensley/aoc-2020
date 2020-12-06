@@ -57,6 +57,25 @@ foreach ($line in $content)
     if ($line)
     {
         #parse info and include in object
+        $things = $line -split ' '
+        foreach ($thing in $things)
+        {
+            $thing1 = $thing.substring(0,3)
+            $thing2 = $thing.substring(3)
+            switch ( $thing1 )
+            {
+                byr { $byr = $thing2 }
+                iyr { $iyr = $thing2 }
+                eyr { $eyr = $thing2 }
+                hgt { $hgt = $thing2 }
+                hcl { $hcl = $thing2 }
+                ecl { $ecl = $thing2 }
+                pid { $pid = $thing2 }
+                cid { $cid = $thing2 }
+                default { "Error: Unknown, $thing1 $thing2" }
+            }
+
+        }
     }
     else
     {
