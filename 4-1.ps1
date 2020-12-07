@@ -39,21 +39,26 @@ Count the number of valid passports - those that have all required fields. Treat
 #>
 
 $content = get-content -path .\4.txt
+$length = $content.Length
+$i=0
 $item=0
+$valid = $unknown = $invalid = 0
+$b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
 $hash = @{
-    BirthYear      = $byr
-    IssueYear      = $iyr
-    ExpirationYear = $eyr
+    BirthYear      = $b_yr
+    IssueYear      = $i_yr
+    ExpirationYear = $e_yr
     Height         = $hgt
-    HairColor      = $hcl
-    EyeColor       = $ecl
-    PassportID     = $pid
-    CountryID      = $cid
+    HairColor      = $h_cl
+    EyeColor       = $e_cl
+    PassportID     = $p_id
+    CountryID      = $c_id
 }
 
 
 foreach ($line in $content)
 {
+$i++
     if ($line)
     {
         #parse info and include in object
@@ -64,24 +69,57 @@ foreach ($line in $content)
             $thing2 = $thing.substring(3)
             switch ( $thing1 )
             {
-                byr { $byr = $thing2 }
-                iyr { $iyr = $thing2 }
-                eyr { $eyr = $thing2 }
+                byr { $b_yr = $thing2 }
+                iyr { $i_yr = $thing2 }
+                eyr { $e_yr = $thing2 }
                 hgt { $hgt = $thing2 }
-                hcl { $hcl = $thing2 }
-                ecl { $ecl = $thing2 }
-                pid { $pid = $thing2 }
-                cid { $cid = $thing2 }
-                default { "Error: Unknown, $thing1 $thing2" }
+                hcl { $h_cl = $thing2 }
+                ecl { $e_cl = $thing2 }
+                pid { $p_id = $thing2 }
+                cid { $c_id = $thing2 }
+                default { $unknown++; "Error: Unknown, $thing1 $thing2" }
             }
-
         }
     }
     else
     {
         # go to new object
-        $passport = New-Object PSObject -Property $hash          
-        
-        $item++
+#        $passport = New-Object PSObject -Property $hash          
+        #Write-Host "byr=$b_yr iyr=$i_yr eyr=$e_yr hgt=$hgt hcl=$h_cl ecl=$e_cl pid=$p_id cid=$c_id"
+        if ($b_yr -eq $null -or $i_yr -eq $null -or $e_yr -eq $null -or $hgt -eq $null -or $h_cl -eq $null -or $e_cl -eq $null -or $p_id -eq $null)
+        {
+            #Write-Host -ForegroundColor Green "Line $i"
+            #Write-Host -ForegroundColor Red "Invalid passport"
+            $invalid++
+            $invalid
+        }
+        else
+        {
+            #Write-Host -ForegroundColor Green "Valid password"
+            $valid++
+            #$valid
+        }
+        #Write-Host -ForegroundColor Green "Line $i"
+        $b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
     }
+
 }
+if ($b_yr -eq $null -or $i_yr -eq $null -or $e_yr -eq $null -or $hgt -eq $null -or $h_cl -eq $null -or $e_cl -eq $null -or $p_id -eq $null)
+{
+    #Write-Host -ForegroundColor Green "Line $i"
+    #Write-Host -ForegroundColor Red "Invalid passport"
+    $invalid++
+    $invalid
+}
+else
+{
+    #Write-Host -ForegroundColor Green "Valid password"
+    $valid++
+    #$valid
+}
+#Write-Host -ForegroundColor Green "Line $i"
+$b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
+
+Write-Host -ForegroundColor Green "There are $invalid invalid passports."
+Write-Host -ForegroundColor Green "There are $valid valid passports."
+Write-Host -ForegroundColor Green "There are $unknown unknown things."

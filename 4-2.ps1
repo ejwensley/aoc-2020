@@ -108,7 +108,6 @@ Count the number of valid passports - those that have all required fields and va
 
 $content = get-content -path .\4.txt
 $length = $content.Length
-$i=0
 $item=0
 $valid = $unknown = $invalid = 0
 $b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
@@ -126,7 +125,6 @@ $hash = @{
 
 foreach ($line in $content)
 {
-$i++
     if ($line)
     {
         #parse info and include in object
@@ -134,25 +132,28 @@ $i++
         foreach ($thing in $things)
         {
             $thing1 = $thing.substring(0,3)
-            $thing2 = $thing.substring(3)
+            $thing2 = $thing.substring(4)
             switch ( $thing1 )
             {
                 byr 
                     { 
                         $b_yr = $thing2
-                        if ($b_yr.length -ne 4) { $b_yr = $null }
+                        $b_yr_length = ($b_yr | Measure-Object -Character).Characters
+                        if ($b_yr_length -ne 4) { $b_yr = $null }
                         if ($b_yr -lt 1920 -or $b_yr -gt 2002) { $b_yr = $null } 
                     }
                 iyr 
                     { 
                         $i_yr = $thing2
-                        if ($i_yr.length -ne 4) { $i_yr = $null }  
+                        $i_yr_length = ($i_yr | Measure-Object -Character).Characters
+                        if ($i_yr_length -ne 4) { $i_yr = $null }  
                         if ($i_yr -lt 2010 -or $i_yr -gt 2020) { $i_yr = $null }
                     }
                 eyr 
                     { 
-                        $e_yr = $thing2 
-                        if ($e_yr.length -ne 4) { $e_yr = $null }  
+                        $e_yr = $thing2
+                        $e_yr_length = ($e_yr | Measure-Object -Character).Characters 
+                        if ($e_yr_length -ne 4) { $e_yr = $null }  
                         if ($e_yr -lt 2020 -or $e_yr -gt 2030) { $e_yr = $null }
                     }
                 hgt 
@@ -177,13 +178,15 @@ $i++
                 hcl 
                     { 
                         $h_cl = $thing2
-                        if ($h_cl -notmatch "^\#[0-9a-f]{6}R" ) { $h_cl = $null } 
+                        if ($h_cl -notmatch "^\#[0-9a-f]{6}" ) { $h_cl = $null } 
                     }
                 ecl 
                     { 
                         $e_cl = $thing2
+                        $e_cl_test = 0
                         $colors = "amb","blu","brn","gry","grn","hzl","oth"
-                        if ($colors -notmatch $e_cl) { $e_cl = $null } 
+                        if ($e_cl -match $colors) { $e_cl_test = 1 }
+                        if ($e_cl_test) { $e_cl = $null } 
                     }
                 pid 
                     { 
@@ -208,7 +211,7 @@ $i++
             #Write-Host -ForegroundColor Green "Line $i"
             #Write-Host -ForegroundColor Red "Invalid passport"
             $invalid++
-            $invalid
+            #$invalid
         }
         else
         {
@@ -219,17 +222,18 @@ $i++
         #Write-Host -ForegroundColor Green "Line $i"
         $b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
     }
-
 }
+
 if ($b_yr -eq $null -or $i_yr -eq $null -or $e_yr -eq $null -or $hgt -eq $null -or $h_cl -eq $null -or $e_cl -eq $null -or $p_id -eq $null)
 {
     #Write-Host -ForegroundColor Green "Line $i"
     #Write-Host -ForegroundColor Red "Invalid passport"
     $invalid++
-    $invalid
+    #$invalid
 }
 else
 {
+
     #Write-Host -ForegroundColor Green "Valid password"
     $valid++
     #$valid
