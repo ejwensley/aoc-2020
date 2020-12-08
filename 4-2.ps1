@@ -162,18 +162,18 @@ foreach ($line in $content)
                         if ($hgt -match "cm")
                         {
                             #match cm
-                            $hgt -match "(\d{3})"
+                            $hgt -match "(\d{3})cm"
                             $height = $matches[1]
                             if ($height -lt 150 -or $height -gt 193) { $hgt = $null }
                         }
                         if ($hgt -match "in")
                         {
                             #match in
-                            $hgt -match "(\d{2})"
+                            $hgt -match "(\d{2})in"
                             $height = $matches[1]
                             if ($height -lt 59 -or $height -gt 76) { $hgt = $null }
                         }
-                        if ($hgt -notmatch "^\d{3}cm" -and $hgt -notmatch "^\d{2}in") { $hgt = $null }                         
+                        if ($hgt -notmatch "^\d{3}cm$" -and $hgt -notmatch "^\d{2}in$") { $hgt = $null }                         
                     }
                 hcl 
                     { 
@@ -185,8 +185,8 @@ foreach ($line in $content)
                         $e_cl = $thing2
                         $e_cl_test = 0
                         $colors = "amb","blu","brn","gry","grn","hzl","oth"
-                        if ($e_cl -match $colors) { $e_cl_test = 1 }
-                        if ($e_cl_test) { $e_cl = $null } 
+                        if ($colors -match $e_cl) { $e_cl_test = 1 }
+                        if (!$e_cl_test) { $e_cl = $null } 
                     }
                 pid 
                     { 
@@ -203,38 +203,39 @@ foreach ($line in $content)
     }
     else
     {
-        # go to new object
-#        $passport = New-Object PSObject -Property $hash          
+        #Blank line indicates new passport so complete previous passport check:
         Write-Host "byr=$b_yr iyr=$i_yr eyr=$e_yr hgt=$hgt hcl=$h_cl ecl=$e_cl pid=$p_id cid=$c_id"
         if ($b_yr -eq $null -or $i_yr -eq $null -or $e_yr -eq $null -or $hgt -eq $null -or $h_cl -eq $null -or $e_cl -eq $null -or $p_id -eq $null)
         {
             #Write-Host -ForegroundColor Green "Line $i"
-            #Write-Host -ForegroundColor Red "Invalid passport"
+            Write-Host -ForegroundColor Red "Invalid passport"
             $invalid++
             #$invalid
         }
         else
         {
-            #Write-Host -ForegroundColor Green "Valid password"
+            Write-Host -ForegroundColor Green "Valid password"
             $valid++
             #$valid
         }
         #Write-Host -ForegroundColor Green "Line $i"
+        #Reset all variables before moving on to the next passport
         $b_yr = $i_yr = $e_yr = $hgt = $h_cl = $e_cl = $p_id = $c_id = $null
     }
 }
 
+#The last line of the file is not blank, so finish processing last passport
+Write-Host -ForegroundColor Green "Line $i Last Line"
+Write-Host "byr=$b_yr iyr=$i_yr eyr=$e_yr hgt=$hgt hcl=$h_cl ecl=$e_cl pid=$p_id cid=$c_id"
 if ($b_yr -eq $null -or $i_yr -eq $null -or $e_yr -eq $null -or $hgt -eq $null -or $h_cl -eq $null -or $e_cl -eq $null -or $p_id -eq $null)
 {
-    #Write-Host -ForegroundColor Green "Line $i"
-    #Write-Host -ForegroundColor Red "Invalid passport"
+    Write-Host -ForegroundColor Red "Invalid passport"
     $invalid++
     #$invalid
 }
 else
 {
-
-    #Write-Host -ForegroundColor Green "Valid password"
+    Write-Host -ForegroundColor Green "Valid password"
     $valid++
     #$valid
 }
